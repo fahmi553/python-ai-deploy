@@ -6,7 +6,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-API_URL = "https://router.huggingface.co/hf-inference/models/fahmi553/anonymous-talk-sentiment"
+API_URL = "https://api-inference.huggingface.co/models/fahmi553/anonymous-talk-sentiment"
 HF_TOKEN = os.environ.get("HF_TOKEN")
 
 headers = {
