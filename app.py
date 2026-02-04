@@ -31,7 +31,9 @@ def analyze_text():
         response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
         ai_response = response.json()
         
+        # Line 34 starts here
         if response.status_code != 200:
+            # These lines MUST be indented (4 spaces)
             print(f"❌ Hugging Face API Error ({response.status_code}): {ai_response}")
             return jsonify({
                 "status": "error", 
@@ -40,6 +42,7 @@ def analyze_text():
             }), 503
 
         if isinstance(ai_response, list) and len(ai_response) > 0:
+            # Logic to handle nested Hugging Face results
             top_result = ai_response[0][0] if isinstance(ai_response[0], list) else ai_response[0]
 
             return jsonify({
