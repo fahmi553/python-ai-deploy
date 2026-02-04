@@ -31,19 +31,13 @@ def analyze_text():
         response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
         ai_response = response.json()
         
-        # Line 34 starts here
         if response.status_code != 200:
-            # These lines MUST be indented (4 spaces)
-            print(f"❌ Hugging Face API Error ({response.status_code}): {ai_response}")
-            return jsonify({
-                "status": "error", 
-                "hf_code": response.status_code,
-                "hf_details": ai_response
-            }), 503
+            print(f"HF Error: {ai_response}")
+            return jsonify({"status": "error", "details": ai_response}), 503
 
         if isinstance(ai_response, list) and len(ai_response) > 0:
-            # Logic to handle nested Hugging Face results
-            top_result = ai_response[0][0] if isinstance(ai_response[0], list) else ai_response[0]
+            inner = ai_response[0]
+            top_result = inner[0] if isinstance(inner, list) else inner
 
             return jsonify({
                 "status": "success",
@@ -51,9 +45,10 @@ def analyze_text():
                 "confidence": top_result['score']
             })
 
-        return jsonify({"error": "Unexpected API response format"}), 500
+        return jsonify({"error": "Unexpected format from AI"}), 500
 
     except Exception as e:
+        print(f"System Error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
