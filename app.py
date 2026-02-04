@@ -10,6 +10,10 @@ API_URL = "https://api-inference.huggingface.co/models/fahmi553/anonymous-talk-s
 HF_TOKEN = os.environ.get("HF_TOKEN")
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
+@app.route('/')
+def home():
+    return jsonify({"status": "AI Service is Running"}), 200
+
 @app.route('/analyze', methods=['POST'])
 def analyze_text():
     data = request.json
@@ -21,10 +25,11 @@ def analyze_text():
     payload = {"inputs": text}
 
     try:
-        response = requests.post(API_URL, headers=headers, json=payload)
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=10)
         ai_response = response.json()
         if isinstance(ai_response, dict) and "error" in ai_response:
-            return jsonify({"status": "error", "message": ai_response["error"]}), 503
+            return jsonify({"status": "loading", "message": ai_response["error"]}), 503
+            
         if isinstance(ai_response, list) and len(ai_response) > 0:
             top_result = ai_response[0][0] if isinstance(ai_response[0], list) else ai_response[0]
 
