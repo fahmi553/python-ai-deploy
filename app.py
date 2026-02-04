@@ -41,7 +41,10 @@ def analyze_text():
 
     try:
         response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
-        
+
+        print("STATUS:", response.status_code)
+        print("HEADERS:", response.headers)
+        print("TEXT:", response.text[:500])
         if not response.text:
             return jsonify({
                 "status": "error",
