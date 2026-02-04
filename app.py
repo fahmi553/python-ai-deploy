@@ -6,7 +6,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-API_URL = "https://api-inference.huggingface.co/models/fahmi553/anonymous-talk-sentiment"
+API_URL = "https://router.huggingface.co/hf-inference/models/fahmi553/anonymous-talk-sentiment"
 HF_TOKEN = os.environ.get("HF_TOKEN")
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
@@ -33,7 +33,7 @@ def analyze_text():
         
         if response.status_code != 200:
             print(f"HF Error: {ai_response}")
-            return jsonify({"status": "error", "details": ai_response}), 503
+            return jsonify({"status": "error", "details": ai_response}), response.status_code
 
         if isinstance(ai_response, list) and len(ai_response) > 0:
             inner = ai_response[0]
@@ -52,5 +52,5 @@ def analyze_text():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
