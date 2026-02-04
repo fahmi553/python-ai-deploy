@@ -6,16 +6,18 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Use the new required router URL
 API_URL = "https://router.huggingface.co/hf-inference/models/fahmi553/anonymous-talk-sentiment"
 HF_TOKEN = os.environ.get("HF_TOKEN")
-headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+
+headers = {
+    "Authorization": f"Bearer {HF_TOKEN}",
+    "Content-Type": "application/json"
+}
 
 @app.route('/')
 def home():
     return jsonify({"status": "AI Service is Running"}), 200
 
-# NEW: Route to test if your HF_TOKEN is actually working
 @app.route('/test-token')
 def test_token():
     try:
@@ -40,25 +42,28 @@ def analyze_text():
     try:
         response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
         
-        # Check if response is empty to avoid the "line 1 column 1" error
         if not response.text:
-            return jsonify({"error": "Empty response from HF", "code": response.status_code}), 500
+            return jsonify({
+                "status": "error",
+                "message": "Empty response from Hugging Face",
+                "http_code": response.status_code
+            }), 500
 
         ai_response = response.json()
-        
         if response.status_code != 200:
             return jsonify({"status": "error", "details": ai_response}), response.status_code
 
         if isinstance(ai_response, list) and len(ai_response) > 0:
             inner = ai_response[0]
             top_result = inner[0] if isinstance(inner, list) else inner
+
             return jsonify({
                 "status": "success",
                 "result": top_result['label'],
                 "confidence": top_result['score']
             })
 
-        return jsonify({"error": "Unexpected format", "raw": ai_response}), 500
+        return jsonify({"error": "Unexpected format from AI", "raw": ai_response}), 500
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
